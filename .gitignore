@@ -4,7 +4,8 @@ obj/
 publish/
 publish-fd/
 artifacts/
-# dist 是 publish.cmd 产出的自包含单文件 exe（约 60 MB），不进仓库
+# dist/ 是手动 dotnet publish 出来的单文件 exe（约 60 MB），不进仓库。
+# publish.cmd 默认输出到 publish/，这里一并忽略，避免误提交二进制。
 dist/
 
 # 内部文档（竞品分析等，不对外）
