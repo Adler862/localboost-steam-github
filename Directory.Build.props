@@ -1,0 +1,33 @@
+<Project>
+
+  <!--
+    所有项目共用的构建属性与包元数据。
+    放在仓库根目录，dotnet 会自动向上查找并应用到每个项目 —— 新增项目不用重复写。
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- 可重现构建：同样的输入产出同样的二进制，便于比对发布物 -->
+    <Deterministic>true</Deterministic>
+
+    <!--
+      让 .editorconfig 里的代码风格规则在 build 时也参与判定。
+      这些规则的严重级别本身已压在 suggestion 及以下（见 .editorconfig 的说明），
+      所以不会把构建搞红，只是让 IDE 和命令行给出一致的提示。
+    -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- 包元数据集中在这里，各项目的 csproj 不再各写一份 -->
+    <Version>1.0.0</Version>
+    <Product>LocalBoost</Product>
+    <Description>极简本地加速，仅 Steam 与 GitHub。</Description>
+    <Copyright>Copyright (c) 2026 LocalBoost contributors</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+</Project>

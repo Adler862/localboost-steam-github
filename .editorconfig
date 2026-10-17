@@ -1,0 +1,84 @@
+# LocalBoost 的代码风格与格式约定。
+#
+# 这个文件同时是 `dotnet format` 的配置来源，CI 会用
+# `dotnet format --verify-no-changes` 校验，所以改它等于改 CI 的判定标准。
+#
+# 严重级别刻意都压在 suggestion 及以下：本项目大量使用 P/Invoke、手工布局、
+# 捕获通用异常降级等写法，把它们提升成 warning 只会逼着后来人加一堆抑制。
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# 批处理必须是 CRLF，否则某些环境下 cmd 解析会出问题
+[*.{cmd,bat}]
+end_of_line = crlf
+
+[*.{json,yml,yaml,md,csproj,props,targets}]
+indent_size = 2
+
+[*.{png,ico,exe,pdb}]
+insert_final_newline = false
+
+[*.cs]
+# ---------------------------------------------------------------- 基本格式
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+# 刻意保留紧凑的单行语句：Windows 消息命中测试、开关判断那类地方
+# 排成 `if (left) return HTLEFT;` 的形式比拆成两行更好读，拆开纯属噪音。
+csharp_preserve_single_line_statements = true
+csharp_preserve_single_line_blocks = true
+csharp_indent_block_contents = true
+csharp_indent_braces = false
+
+# ---------------------------------------------------------------- 组织方式
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_using_directive_placement = outside_namespace:silent
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# ---------------------------------------------------------------- 语言特性倾向
+# 本项目刻意写得直白：能用 var 也能写显式类型，不做强制
+csharp_style_var_for_built_in_types = false:silent
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_prefer_braces = true:suggestion
+csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_pattern_matching = true:suggestion
+csharp_style_deconstructed_variable_declaration = true:suggestion
+dotnet_style_readonly_field = true:suggestion
+
+# 原始字符串字面量（本项目用它写多行提示文案，比拼接可读得多）
+csharp_style_prefer_raw_string_literal = true:suggestion
+
+# ---------------------------------------------------------------- 命名
+# 这里刻意**不写** dotnet_naming_rule：命名规则的代码修复会去修改编译选项，
+# 而 `dotnet format` 不支持在应用修复时改变编译选项，会直接抛
+# NotSupportedException 崩掉整个格式化流程。命名约定改为写在 CONTRIBUTING.md 里，
+# 靠 review 保证（私有字段 _camelCase、公开成员 PascalCase）。
+
+# ---------------------------------------------------------------- 分析器
+# 网络层刻意捕获通用异常做降级：任何失败都不能把进程带崩，比精确 catch 更重要
+dotnet_diagnostic.CA1031.severity = none
+# WinForms 的事件处理器不需要 ConfigureAwait(false)
+dotnet_diagnostic.CA2007.severity = none
+# LoggerMessage 源生成器与这里的 Action<string> 回调模型不匹配
+dotnet_diagnostic.CA1848.severity = none
+# 借 Web SDK 拿 Kestrel，不跑在 IIS 上
+dotnet_diagnostic.ASPNETCORE0060.severity = none
+# 自定义控件全部手写，不用设计器，不需要属性序列化特性
+dotnet_diagnostic.WFO1000.severity = none
+# 本项目是 Windows 专用工具，平台兼容性检查没有意义
+dotnet_diagnostic.CA1416.severity = none
+dotnet_diagnostic.CA1417.severity = none
+
+[.github/**]
+indent_size = 2

@@ -1,0 +1,108 @@
+{
+  "rules": [
+    {
+      "tag": "GitHub-Web",
+      "hosts": [
+        "github.com",
+        "www.github.com",
+        "api.github.com",
+        "gist.github.com",
+        "github.githubassets.com"
+      ],
+      "upstream": null,
+      "staticIps": null,
+      "extraIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "GitHub-File",
+      "hosts": [
+        "codeload.github.com",
+        "raw.githubusercontent.com",
+        "objects.githubusercontent.com",
+        "objects-origin.githubusercontent.com",
+        "avatars.githubusercontent.com",
+        "gist.githubusercontent.com",
+        "camo.githubusercontent.com"
+      ],
+      "upstream": null,
+      "staticIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "GitHub-Pages",
+      "hosts": [
+        "*.github.io"
+      ],
+      "upstream": null,
+      "staticIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "Steam-Shop",
+      "hosts": [
+        "store.steampowered.com",
+        "api.steampowered.com",
+        "login.steampowered.com",
+        "checkin.steampowered.com",
+        "help.steampowered.com",
+        "checkout.steampowered.com",
+        "media.steampowered.com"
+      ],
+      "upstream": null,
+      "staticIps": [
+        "23.220.75.228",
+        "23.220.75.246"
+      ],
+      "serverName": "steamstore-a.akamaihd.net",
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "Steam-Community",
+      "hosts": [
+        "steamcommunity.com",
+        "www.steamcommunity.com"
+      ],
+      "upstream": null,
+      "staticIps": [
+        "23.220.75.228",
+        "23.220.75.246"
+      ],
+      "serverName": "steamcommunity-a.akamaihd.net",
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "Steam-Assets",
+      "hosts": [
+        "steamcommunity-a.akamaihd.net",
+        "steamuserimages-a.akamaihd.net",
+        "steamcdn-a.akamaihd.net"
+      ],
+      "upstream": null,
+      "staticIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": true
+    },
+    {
+      "tag": "Steam-CDN",
+      "hosts": [
+        "*.steamstatic.com",
+        "*.steamcontent.com"
+      ],
+      "upstream": null,
+      "staticIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": true
+    }
+  ]
+}

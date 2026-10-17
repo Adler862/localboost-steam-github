@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    中央包版本管理：所有 PackageReference 只写包名，版本统一在这里定。
+    好处是升级依赖时只改一处，也不会出现两个项目引同一包但版本不同的情况。
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 运行期依赖 -->
+    <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
+
+    <!-- 测试。版本取自 `dotnet new xunit` 在当前 SDK 下生成的模板值，
+         比自己凭记忆挑版本可靠 —— 模板值一定是能还原的。 -->
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 同一分支连续推送时取消上一次运行 —— 既省额度，也避免旧提交的结果来干扰
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CONFIGURATION: Release
+
+jobs:
+  build-test:
+    # 项目是 net9.0-windows + WinForms，只能在 Windows 上构建
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出
+        uses: actions/checkout@v4
+
+      - name: 安装 SDK（版本由 global.json 决定）
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      # 只还原这一个项目：测试项目会连带把主程序项目一起还原，
+      # 不用维护项目清单，新增项目也不容易漏。
+      - name: 还原
+        run: dotnet restore LocalBoost.Tests/LocalBoost.Tests.csproj
+
+      # -warnaserror：这个项目的编译一直是零警告，退化时应该直接失败而不是被忽略
+      - name: 编译（警告视为错误）
+        run: dotnet build LocalBoost.Tests/LocalBoost.Tests.csproj -c $env:CONFIGURATION --no-restore -warnaserror
+
+      # 格式与风格分两步校验，不用聚合的 `dotnet format`：
+      # 聚合命令在应用修复时可能因命名规则去改编译选项而崩，verify 模式也容易被牵连。
+      - name: 格式校验（空白与换行）
+        run: dotnet format whitespace LocalBoost.csproj --verify-no-changes --no-restore
+
+      - name: 代码风格校验（warning 及以上）
+        run: dotnet format style LocalBoost.csproj --verify-no-changes --severity warn --no-restore
+
+      - name: 单元测试
+        run: dotnet test LocalBoost.Tests/LocalBoost.Tests.csproj -c $env:CONFIGURATION --no-build
+
+      # 发布链路单独验一遍：历史上踩过 `-o publish` 落在项目目录里
+      # 导致产物自我嵌套（publish\publish\）的坑，这一步能拦住它复发。
+      - name: 验证单文件发布
+        run: >
+          dotnet publish LocalBoost.csproj -c $env:CONFIGURATION -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o artifacts
+
+      - name: 确认产物存在且没被嵌套
+        shell: pwsh
+        run: |
+          $exe = Get-Item artifacts/LocalBoost.exe -ErrorAction SilentlyContinue
+          if (-not $exe) { throw "没有产出 artifacts/LocalBoost.exe" }
+          Write-Host ("产物体积 {0:N0} 字节" -f $exe.Length)
+          if (Test-Path artifacts/artifacts) { throw "产物出现嵌套目录：artifacts/artifacts" }
+          if (Test-Path artifacts/publish) { throw "产物出现嵌套目录：artifacts/publish" }

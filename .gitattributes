@@ -1,0 +1,37 @@
+# 仓库内统一按 LF 存储，**检出时也统一是 LF**。
+#
+# 这里必须显式写 eol=lf：只写 `text` 的话，检出时的行尾由 core.autocrlf 决定，
+# 而 Windows 上它默认是 true —— 于是工作区变成 CRLF，与 .editorconfig 的
+# `end_of_line = lf` 打架，`dotnet format --verify-no-changes` 会把整个文件报成
+# ENDOFLINE 错误（一次几百条）。显式 eol=lf 才不会被 autocrlf 覆盖。
+# cmd/bat 例外：那是 Windows 专用脚本，保持 CRLF。
+* text=auto
+
+*.cs       text eol=lf
+*.csproj   text eol=lf
+*.props    text eol=lf
+*.targets  text eol=lf
+*.json     text eol=lf
+*.md       text eol=lf
+*.yml      text eol=lf
+*.manifest text eol=lf
+*.ps1      text eol=lf
+*.cmd      text eol=crlf
+*.bat      text eol=crlf
+
+# 无扩展名的文本文件也要显式声明，否则会被 core.autocrlf 转成 CRLF，
+# 与 .editorconfig 的 end_of_line = lf 冲突。
+.gitignore     text eol=lf
+.gitattributes text eol=lf
+.editorconfig  text eol=lf
+LICENSE        text eol=lf
+
+# 二进制：不要让 git 尝试做任何文本处理
+*.png binary
+*.ico binary
+*.exe binary
+*.pdb binary
+*.pfx binary
+*.pem binary
+*.key binary
+*.cer binary
