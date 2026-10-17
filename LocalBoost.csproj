@@ -31,6 +31,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- 个人配置与本地启动器不能进任何发布产物。
+         Web SDK 默认把项目目录下的文件都当 Content，`rules.local.json` 因此会被
+         复制到 publish 输出目录 —— 而它正是那个不该外传的文件（针对本机网络的
+         上游地址）。`LocalBoost.cmd` 是本机启动器，同理。
+         这类东西一旦混进发布目录，打 Release 时极易被一起上传。 -->
+    <Content Remove="rules.local.json" />
+    <None Remove="rules.local.json" />
+    <Content Remove="LocalBoost.cmd" />
+    <None Remove="LocalBoost.cmd" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- 测试项目需要访问 internal 的纯函数（hosts 区块处理等）。
          不为此把它们提升成 public：那会凭空扩大程序集的公开 API 面。 -->
     <InternalsVisibleTo Include="LocalBoost.Tests" />
