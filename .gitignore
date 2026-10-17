@@ -39,3 +39,6 @@ crop*.png
 # 系统
 Thumbs.db
 .DS_Store
+
+# 个人配置（含针对自己网络的上游地址），不进仓库
+rules.local.json

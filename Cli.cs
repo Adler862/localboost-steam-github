@@ -35,7 +35,11 @@ public static class Cli
               LocalBoost rules               列出当前规则表
               LocalBoost probe <host>        对某个域名做 IP 优选诊断
 
+            全局参数：
+              --rules <路径>                   指定规则文件（默认用程序目录下的 rules.json）
+
             环境变量：
+              LOCALBOOST_RULES                 规则文件路径（优先级低于 --rules）
               LOCALBOOST_HTTPS_PORT            默认 443
               LOCALBOOST_HTTP_PORT             默认 80
               LOCALBOOST_PROXY_PORT            本地 HTTP 代理端口，默认 18080（被占用会自动换端口）

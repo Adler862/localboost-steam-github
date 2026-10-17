@@ -14,11 +14,13 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        var rulesPath = Path.Combine(AppContext.BaseDirectory, "rules.json");
+        var rulesPath = ResolveRulesPath(args);
 
         if (!File.Exists(rulesPath))
         {
-            const string missing = "找不到 rules.json，请确认它和程序在同一个目录。";
+            var missing = $"找不到规则文件：{rulesPath}\n"
+                        + "默认读取程序所在目录的 rules.json；"
+                        + "也可以用 LOCALBOOST_RULES 环境变量或 --rules <路径> 指定。";
             if (args.Length == 0)
                 MessageBox.Show(missing, "LocalBoost", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
@@ -29,6 +31,33 @@ internal static class Program
         return args.Length == 0
             ? RunGui(rulesPath)
             : RunCli(args, rulesPath);
+    }
+
+    /// <summary>
+    /// 决定读哪个规则文件。优先级：`--rules &lt;路径&gt;` &gt; `LOCALBOOST_RULES` &gt; 程序目录下的 rules.json。
+    ///
+    /// 加这层是为了让「仓库里的默认规则」和「各人自己的规则」能共存：
+    /// 默认那份不含任何写死的上游地址，适合公开分发；而某些地址只对特定网络有效
+    /// （甚至需要你自行确认有权使用），不该进公开仓库。把这类配置另存一份、
+    /// 用环境变量指过去即可，不必改仓库里的文件。
+    /// </summary>
+    private static string ResolveRulesPath(string[] args)
+    {
+        // --rules <路径>：命令行优先，便于临时切换
+        for (var i = 0; i < args.Length - 1; i++)
+        {
+            if (string.Equals(args[i], "--rules", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(args[i + 1]))
+            {
+                return Path.GetFullPath(args[i + 1]);
+            }
+        }
+
+        var fromEnv = Environment.GetEnvironmentVariable("LOCALBOOST_RULES");
+        if (!string.IsNullOrWhiteSpace(fromEnv))
+            return Path.GetFullPath(fromEnv);
+
+        return Path.Combine(AppContext.BaseDirectory, "rules.json");
     }
 
     // ------------------------------------------------------------ 图形界面
