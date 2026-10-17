@@ -5,6 +5,26 @@
 
 ## [未发布]
 
+### 新增
+
+- **`--rules <路径>` 参数与 `LOCALBOOST_RULES` 环境变量**：可以把个人配置与仓库默认的
+  `rules.json` 分开。优先级为命令行 > 环境变量 > 程序目录下的 `rules.json`。
+- **`rules.example.json`**：三种典型规则写法（走 CDN 边缘换 SNI + 固定 IP、追加候选
+  `extraIps`、普通动态优选），带注释，字段含义与易错点写在里面。
+
+### 修正
+
+- **`staticIps` / `extraIps` 规则不再走探测与预检**：这类 IP 是手工确定的固定上游，
+  再跑一轮探测没有意义；预检还会把 CDN 边缘根路径的 302 / 404 判成「没确认可用」，
+  白等一整轮预算。实测 Steam 每个域名首访因此多花 4~20 秒，修后 `store` 从 15.5s 降到 2.2s。
+- **空壳判据用了转发前的状态码**：`StubDetector` 在转发开始前读取
+  `context.Response.StatusCode`，那时是默认的 200，导致「只对 2xx 判空壳」这段逻辑
+  从未生效。`api.steampowered.com` 根路径本就合法地回 404 + 146 字节，却被判成空壳，
+  把可用出口标黑。改为转发结束后记录真实状态码。
+- **`.gitignore` 未覆盖 `dist/`**：`dist/` 是手动发布出来的单文件 exe，此前会被误提交。
+- **个人配置会被复制进发布目录**：`rules.local.json` 虽在 `.gitignore` 里，但 Web SDK
+  仍会把它当 Content 复制到 publish 输出。已从 csproj 排除，同时排除本机启动器。
+
 ## [1.0.0] - 2026-10-14
 
 首次开源发布。只做 Steam 与 GitHub 的域名解析优选，两种加速模式可独立使用。
