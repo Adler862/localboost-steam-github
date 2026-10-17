@@ -1,0 +1,132 @@
+name: 问题反馈
+description: 加速不生效、报错、界面异常等
+title: "[问题] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。这个项目的绝大多数问题都和**具体网络环境**有关，所以下面几项请尽量填全，
+        否则很难判断到底是哪一层出的问题。
+
+        > ⚠️ **不要提交这些内容**：根证书的私钥文件（`%LOCALAPPDATA%\LocalBoost\` 下的 `*.dpapi`）、
+        > 完整的 hosts 文件（里面可能有你自己的内网条目）、任何账号或凭据。
+        > 安全问题请走 [SECURITY.md](https://github.com/Adler862/LocalBoost/blob/main/SECURITY.md) 的私密渠道，不要开 Issue。
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 你期望的结果，和实际看到的结果
+      placeholder: |
+        期望：打开 github.com 能正常加载
+        实际：浏览器报 ERR_CERT_INVALID / 页面一直转圈 / 程序直接退出
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 从启动程序开始，越具体越好
+      placeholder: |
+        1. 双击 publish\LocalBoost.exe，UAC 点"是"
+        2. 点「安装根证书」
+        3. 点「一键加速」
+        4. 打开 Edge 访问 https://github.com
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: 用的哪种模式
+      options:
+        - 模式一 hosts + 本地反代（装了根证书）
+        - 模式二 本地代理 + PAC（开启了系统代理）
+        - 两个都开了
+        - 只是命令行跑 run / probe，没开界面
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: LocalBoost 版本
+      description: 界面上看不到的话，看仓库的 `Directory.Build.props` 里的 `Version`，或你用哪个提交构建的
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      description: 运行 `winver` 或 `ver`，把完整版本号贴上来（23H2 与 24H2 在 DWM 行为上有差别）
+      placeholder: "Windows 11 24H2，内部版本 26100.xxxx"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cert-installed
+    attributes:
+      label: 根证书装了吗
+      description: 命令行执行 `LocalBoost.exe cert install` 会告诉你状态
+      options:
+        - 已装在「计算机」信任库
+        - 没装
+        - 不确定
+    validations:
+      required: true
+
+  - type: textarea
+    id: state
+    attributes:
+      label: 当前接管状态
+      description: 贴下面两条命令的输出
+      value: |
+        ```
+        LocalBoost.exe hosts list
+        LocalBoost.exe proxy status
+        ```
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: probe
+    attributes:
+      label: probe 输出
+      description: 对出问题的域名执行 `LocalBoost.exe probe <域名>`，把完整输出贴上来
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 界面日志
+      description: 程序右下角日志区里出问题那一段。带时间戳最好
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: already-tried
+    attributes:
+      label: 已经试过什么
+      description: |
+        例如：完全退出浏览器重开、`chrome://net-internals/#hsts` 清过 HSTS、
+        `ipconfig /flushdns`、换过规则、换过网络
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 我已经看过 README 的「已知坑」一节，确认不是那里已经写明的限制
+          required: true
+        - label: 我没有提交私钥文件、完整 hosts 内容或任何凭据
+          required: true

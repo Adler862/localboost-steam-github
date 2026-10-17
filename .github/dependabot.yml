@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  # 依赖版本集中在 Directory.Packages.props，所以扫描根目录就够了
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "依赖"
+    groups:
+      # 测试相关的一起升，避免同一个 PR 里既能跑又互相踩版本
+      test-stack:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "CI"

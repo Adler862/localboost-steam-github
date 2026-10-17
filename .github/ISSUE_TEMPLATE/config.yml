@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全问题 / 漏洞报告
+    url: https://github.com/Adler862/LocalBoost/security/advisories/new
+    about: 私密上报。请勿用公开 Issue 报安全问题，也不要在公开场合贴可利用的 PoC。
+  - name: 使用问题与排查
+    url: https://github.com/Adler862/LocalBoost/blob/main/README.md
+    about: 先看 README 的「已知坑」与「两种加速模式」两节，多数"打不开"的情况那里已经写明了原因。

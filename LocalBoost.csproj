@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- WinForms 要求 -windows 后缀 -->
+    <TargetFramework>net9.0-windows</TargetFramework>
+
+    <!-- WinExe：双击不开黑框。命令行模式会自己附着到父控制台 -->
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+
+    <RootNamespace>LocalBoost</RootNamespace>
+    <AssemblyName>LocalBoost</AssemblyName>
+
+    <!-- 改 hosts 必须提权，直接让整个程序以管理员身份启动，省掉运行时的权限检测 -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <!-- ASPNETCORE0060：借用 Web SDK 但不跑在 IIS 上
+         WFO1000：自定义控件都手写，不用设计器，不需要属性序列化特性 -->
+    <NoWarn>ASPNETCORE0060;WFO1000</NoWarn>
+
+    <!-- 借用了 Web SDK 才拿得到 Kestrel，但不需要它生成 IIS 用的 web.config -->
+    <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Yarp.ReverseProxy" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="rules.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 测试项目需要访问 internal 的纯函数（hosts 区块处理等）。
+         不为此把它们提升成 public：那会凭空扩大程序集的公开 API 面。 -->
+    <InternalsVisibleTo Include="LocalBoost.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 发布输出目录必须排除在内容收集之外。Web SDK 默认把项目目录下所有文件当 Content，
+         而 -o <目录> 的输出正好落在项目里，于是每次 publish 都会把输出目录自身
+         再复制一份成 publish\publish\，多跑几次就嵌套好几层。
+         artifacts 是 CI 与 build.ps1 用的输出目录，同样要防。 -->
+    <Content Remove="publish/**" />
+    <Content Remove="publish-fd/**" />
+    <Content Remove="dist/**" />
+    <Content Remove="artifacts/**" />
+    <None Remove="publish/**" />
+    <None Remove="publish-fd/**" />
+    <None Remove="dist/**" />
+    <None Remove="artifacts/**" />
+
+    <!-- 测试项目在本目录下，必须显式排除：否则它会被主项目的隐式 Compile 通配
+         吃进来，xunit 的类型在测试项目里也就找不到（因为根本没编进去）。 -->
+    <Compile Remove="LocalBoost.Tests/**" />
+    <None Remove="LocalBoost.Tests/**" />
+    <Content Remove="LocalBoost.Tests/**" />
+  </ItemGroup>
+
+</Project>

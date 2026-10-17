@@ -1,0 +1,40 @@
+# 构建产物
+bin/
+obj/
+publish/
+publish-fd/
+artifacts/
+# dist 是 publish.cmd 产出的自包含单文件 exe（约 60 MB），不进仓库
+dist/
+
+# 内部文档（竞品分析等，不对外）
+开源前审查报告.md
+
+# 测试覆盖率（coverlet）
+TestResults/
+coverage*.xml
+coverage*.json
+
+# IDE / 用户配置
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# 本地证书与密钥
+# 运行时生成的根证书落在 %LOCALAPPDATA%\LocalBoost\，这里再兜一层
+*.pfx
+*.pem
+*.key
+*.cer
+*.crt
+
+# 调试时的临时截图
+shot*.png
+crop*.png
+
+# 系统
+Thumbs.db
+.DS_Store
