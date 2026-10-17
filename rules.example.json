@@ -1,0 +1,55 @@
+{
+  // 这是 rules.json 的写法示例，不会自动生效。
+  // 需要时把对应字段抄进真正的 rules.json。
+  //
+  // 字段说明：
+  //   hosts       必填。要接管的域名，支持 *. 后缀通配（但通配只有代理模式有效，
+  //               hosts 模式表达不了）
+  //   staticIps   手填固定上游。填了就不再做 DNS 与优选，只在这批 IP 里按顺序试。
+  //               适合「已确认某个上游可用、且它必须配合 serverName 才有效」的场景，
+  //               例如走 CDN 边缘时换 SNI。
+  //   extraIps    追加候选，和 DNS 结果一起参与优选。适合「平时可用但时通时断」的地址：
+  //               钉成 staticIps 会一断全断，完全忽略又浪费，放进候选池最合适。
+  //   serverName  改写 TLS SNI，并保留原始 Host。填了它会放宽「证书名称不匹配」这一种
+  //               校验错误（链与签名仍严格），每次都会写进日志。
+  //   upstream    换成另一个请求目标主机名。**注意它与 serverName 不是一回事**：
+  //               upstream 改了「连到哪个站」，serverName 只改 SNI。走 CDN 边缘时要的是
+  //               serverName，误用 upstream 会导致 staticIps 与 SNI 改写全部失效。
+  "rules": [
+    {
+      // 场景一：走 CDN 边缘。SNI 换成 CDN 的主机名，Host 仍是原域名。
+      // 下面的 IP 是占位地址（RFC 5737 保留段），换成你自己实测可用的。
+      "tag": "示例：CDN 边缘",
+      "hosts": ["example.com"],
+      "upstream": null,
+      "staticIps": ["203.0.113.10", "203.0.113.11"],
+      "serverName": "example.com.cdn.example.net",
+      "port": 443,
+      "enabled": false
+    },
+    {
+      // 场景二：追加候选。自己知道某个地址值得一试，就放这里，
+      // 让优选按实际表现决定用不用它。
+      "tag": "示例：追加候选",
+      "hosts": ["example.org"],
+      "upstream": null,
+      "staticIps": null,
+      "extraIps": ["203.0.113.20"],
+      "serverName": null,
+      "port": 443,
+      "enabled": false
+    },
+    {
+      // 场景三：最普通的动态优选。只给域名，其余留空，
+      // 引擎自己去解析、测速、失败切换。
+      "tag": "示例：动态优选",
+      "hosts": ["example.net"],
+      "upstream": null,
+      "staticIps": null,
+      "extraIps": null,
+      "serverName": null,
+      "port": 443,
+      "enabled": false
+    }
+  ]
+}

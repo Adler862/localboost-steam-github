@@ -176,6 +176,31 @@ dotnet publish LocalBoost.csproj -c Release -r win-x64 \
 
 `rules.json` 与 exe 放同一目录即可。想只留 GitHub 就把 Steam 几组的 `"enabled"` 改成 `false`。
 
+### 自己写规则
+
+看 `rules.example.json`，里面有三种典型写法（带注释，可直接照着改）：
+走 CDN 边缘（换 SNI + 固定 IP）、追加候选（`extraIps`）、最普通的动态优选。
+
+`rules.json` 里默认只保留动态优选，没有写死任何上游 IP ——
+`staticIps` 里的地址会过期，写死反而容易让工具在别人的网络里直接失效。
+
+> **关于 `upstream` 和 `serverName`**：这两个字段不是一回事。
+> `upstream` 改的是「连到哪个站」（请求目标的 Host），`serverName` 只改 TLS SNI。
+> 走 CDN 边缘时要用 `serverName`；误用 `upstream` 会让 `staticIps` 与 SNI 改写一起失效，
+> 表现为 502 且日志里连 SNI 改写那行都不出现。
+
+### 一个必须说清的局限
+
+**GitHub 的可用性完全取决于你所在网络**。本项目只做「在候选出口里挑一个能用的」，
+救不回一条本身已经断掉的链路。
+
+实测在作者的网络上，GitHub 的可用出口会成片失效（同一时刻连 `20.205.243.166`
+也返回 RST），此时无论怎么优选都拿不到页面；好相位下则正常。Steam 那两组因为走的是
+CDN 边缘、地址稳定得多，表现明显更好。
+
+如果你知道某个上游对自己的网络特别有效，可以用 `extraIps` 填进去，
+让优选把它一起评分 —— 但请确认你有权使用该上游。
+
 ### 关于可执行文件签名
 
 **发布的 exe 没有代码签名**。它是 60 MB 自包含单文件、又声明了 `requireAdministrator`，
