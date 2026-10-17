@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: 检出
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 安装 SDK（版本由 global.json 决定）
         uses: actions/setup-dotnet@v4
