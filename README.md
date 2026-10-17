@@ -201,6 +201,23 @@ CDN 边缘、地址稳定得多，表现明显更好。
 如果你知道某个上游对自己的网络特别有效，可以用 `extraIps` 填进去，
 让优选把它一起评分 —— 但请确认你有权使用该上游。
 
+**建议把这类个人配置单独放一份**，不要改仓库里的 `rules.json`：
+某些地址只对特定网络有效，甚至需要你自行确认有权使用，不适合跟着仓库走。
+另存一份后用 `LOCALBOOST_RULES` 或 `--rules` 指过去即可：
+
+```bash
+# 把规则复制一份自己改
+cp rules.example.json rules.local.json
+
+# 启动时指定
+LocalBoost.exe run --rules rules.local.json
+# 或
+set LOCALBOOST_RULES=rules.local.json
+LocalBoost.exe run
+```
+
+`rules.local.json` 已在 `.gitignore` 里，不会被提交。
+
 ### 关于可执行文件签名
 
 **发布的 exe 没有代码签名**。它是 60 MB 自包含单文件、又声明了 `requireAdministrator`，
@@ -210,12 +227,13 @@ CDN 边缘、地址稳定得多，表现明显更好。
 请只从本仓库 Releases 下载，或自己从源码构建。不要从第三方网盘或
 「增强版 / 汉化版」渠道获取 —— 一个需要装根证书的工具，来源不明的风险很大。
 
-### 环境变量
+### 环境变量与参数
 
-优先级低于命令行参数，主要用于调试：
+优先级：命令行参数 > 环境变量 > 默认值。
 
-| 变量 | 默认 | 说明 |
+| 变量 / 参数 | 默认 | 说明 |
 |---|---|---|
+| `--rules <路径>` / `LOCALBOOST_RULES` | 程序目录下的 `rules.json` | 指定规则文件，用于把个人配置与仓库默认分开 |
 | `LOCALBOOST_HTTPS_PORT` | `443` | 模式一监听端口（改了 hosts 就对不上，仅调试） |
 | `LOCALBOOST_HTTP_PORT` | `80` | 明文监听端口，被占用时自动跳过 |
 | `LOCALBOOST_PROXY_PORT` | `18080` | 模式二本地代理端口，被占用时自动换临时端口 |
