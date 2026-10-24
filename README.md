@@ -1,9 +1,11 @@
 # LocalBoost
 
-Windows 本地加速工具，用 .NET 9 + YARP 实现。只处理 Steam 与 GitHub：把这些域名指向本机，
-由本机反代挑选可用出口 IP 后转发。
+Windows 本地加速工具，用 .NET 9 + YARP 实现。面向 Steam：把商店、社区、静态资源的域名
+指向本机，由本机反代挑选可用出口 IP 后转发。
 
 带图形界面，也保留完整命令行。
+
+规则表里另外留了几组 GitHub 条目，能不能用取决于你的网络，见「关于 GitHub 组」。
 
 > 与 Watt Toolkit 的关系：代码独立编写，未复制其源码。域名分组与几处出口改写参数
 > 参考了该项目的公开做法并自行实测确认，详见文末「参考与致谢」。
@@ -44,7 +46,7 @@ Windows 本地加速工具，用 .NET 9 + YARP 实现。只处理 Steam 与 GitH
 |---|---|---|
 | 接管方式 | hosts 指向 `127.0.0.1`，按 SNI 动态签证书 | 系统代理指向本地 PAC，PAC 只导入规则域名 |
 | 需要根证书 | 需要 | **不需要** |
-| 覆盖范围 | 只能表达确切域名 | 能覆盖通配域名（`*.github.io` 等） |
+| 覆盖范围 | 只能表达确切域名 | 能覆盖通配域名（`*.steamstatic.com` 等） |
 | 生效对象 | 全系统 | 只对遵循系统代理的程序生效 |
 | 能改写 SNI | 能（`serverName` 字段） | 不能（拿不到明文） |
 | HSTS 干扰 | 会遇到 | 不会 |
@@ -62,7 +64,7 @@ Windows 本地加速工具，用 .NET 9 + YARP 实现。只处理 Steam 与 GitH
 
 跑一次 `publish.cmd`，双击产出的 `LocalBoost.exe`：
 
-1. 勾选要加速的规则（默认六组全开）
+1. 勾选要加速的规则（默认全开）
 2. 点「安装根证书」—— 会请求管理员权限（只用代理模式可跳过）
 3. 点「一键加速」—— 写入 hosts、启动本地反代与本地 HTTP 代理
 4. 需要覆盖通配域名就开「系统代理」
@@ -174,7 +176,7 @@ dotnet publish LocalBoost.csproj -c Release -r win-x64 \
   --no-self-contained -p:PublishSingleFile=true -o publish-fd
 ```
 
-`rules.json` 与 exe 放同一目录即可。想只留 GitHub 就把 Steam 几组的 `"enabled"` 改成 `false`。
+`rules.json` 与 exe 放同一目录即可。想只留 Steam 就把 GitHub 几组的 `"enabled"` 改成 `false`。
 
 ### 自己写规则
 
@@ -189,14 +191,11 @@ dotnet publish LocalBoost.csproj -c Release -r win-x64 \
 > 走 CDN 边缘时要用 `serverName`；误用 `upstream` 会让 `staticIps` 与 SNI 改写一起失效，
 > 表现为 502 且日志里连 SNI 改写那行都不出现。
 
-### 一个必须说清的局限
+### 关于 GitHub 组
 
-**GitHub 的可用性完全取决于你所在网络**。本项目只做「在候选出口里挑一个能用的」，
-救不回一条本身已经断掉的链路。
-
-实测在作者的网络上，GitHub 的可用出口会成片失效（同一时刻连 `20.205.243.166`
-也返回 RST），此时无论怎么优选都拿不到页面；好相位下则正常。Steam 那两组因为走的是
-CDN 边缘、地址稳定得多，表现明显更好。
+规则表里另外留了几组 GitHub 条目，可用性完全取决于你所在网络。本项目只做
+「在候选出口里挑一个能用的」，救不回一条本身已经断掉的链路 —— 在作者的网络上这一步
+经常失效，Steam 那几组走 CDN 边缘、地址稳定得多，表现明显更好。
 
 如果你知道某个上游对自己的网络特别有效，可以用 `extraIps` 填进去，
 让优选把它一起评分 —— 但请确认你有权使用该上游。
@@ -242,7 +241,7 @@ LocalBoost.exe run
 
 ## 已知限制
 
-1. **HSTS 会挡模式一**。github.com、steamcommunity.com 都发过
+1. **HSTS 会挡模式一**。steamcommunity.com 等站点发过
    `Strict-Transport-Security`，浏览器记住后强制证书有效，不给「继续访问」按钮。
    解决：`chrome://net-internals/#hsts` 删除对应域名的策略。代理模式不会遇到。
 
